@@ -1,0 +1,23 @@
+{
+  "order_status": {
+    "order_id": "12345",
+    "status": "Shipped",
+    "expected_delivery": "2026-01-10",
+    "carrier": "BlueDart",
+    "tracking_url": "http://mocktracking.com/12345"
+  },
+  "return_request": {
+    "order_id": "98765",
+    "item_id": "shoes",
+    "reason": "size issue",
+    "return_request_id": "RR-20260105-001",
+    "method": "pickup",
+    "label_url": "http://mockreturns.com/label/RR-20260105-001"
+  },
+  "refund_status": {
+    "order_id": "98765",
+    "stage": "Processing",
+    "amount": "2500 INR",
+    "timeline": "Expected within 5 business days"
+  }
+}

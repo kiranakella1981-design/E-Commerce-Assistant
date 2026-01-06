@@ -1,0 +1,22 @@
+[
+  {
+    "query": "Where is my order #12345?",
+    "intent": "order_status",
+    "slots": { "order_id": "12345" }
+  },
+  {
+    "query": "I want to return my shoes, order #98765",
+    "intent": "return_request",
+    "slots": { "order_id": "98765", "item_id": "shoes", "reason": "size issue" }
+  },
+  {
+    "query": "How long do refunds take?",
+    "intent": "refund_policy",
+    "slots": {}
+  },
+  {
+    "query": "Do you accept PayPal?",
+    "intent": "payment_methods",
+    "slots": {}
+  }
+]

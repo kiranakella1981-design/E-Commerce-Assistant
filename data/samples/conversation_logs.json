@@ -1,0 +1,14 @@
+[
+  {
+    "session_id": "conv001",
+    "conversation": [
+      { "role": "user", "text": "Where is my order #12345?" },
+      { "role": "assistant", "intent": "order_status", "slots": { "order_id": "12345" } },
+      { "role": "assistant", "tool_call": "get_order_status", "result": {
+          "status": "Shipped", "expected_delivery": "2026-01-10"
+        }
+      },
+      { "role": "assistant", "text": "Your order #12345 has been shipped and will arrive by Jan 10, 2026." }
+    ]
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "faq_order_tracking",
+    "category": "orders",
+    "region": "global",
+    "effective_date": "2025-01-01",
+    "content": "Customers can track their orders using the order ID provided at checkout. Tracking updates are available within 24 hours of shipment."
+  },
+  {
+    "id": "faq_return_policy",
+    "category": "returns",
+    "region": "India",
+    "effective_date": "2025-01-01",
+    "content": "Items can be returned within 30 days of delivery if unused and in original packaging. Electronics must include all accessories."
+  },
+  {
+    "id": "faq_refund_timeline",
+    "category": "refunds",
+    "region": "global",
+    "effective_date": "2025-01-01",
+    "content": "Refunds are processed within 7 business days after the returned item is received and inspected."
+  },
+  {
+    "id": "faq_payment_methods",
+    "category": "payments",
+    "region": "global",
+    "effective_date": "2025-01-01",
+    "content": "We accept credit cards, debit cards, UPI, PayPal, and net banking. Cash on delivery is available in select regions."
+  }
+]

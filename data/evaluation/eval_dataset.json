@@ -1,0 +1,24 @@
+[
+  {
+    "query": "Where is my order #12345?",
+    "expected_intent": "order_status",
+    "expected_slots": { "order_id": "12345" },
+    "expected_response_contains": ["Shipped", "Jan 10, 2026"]
+  },
+  {
+    "query": "I want to return my shoes, order #98765",
+    "expected_intent": "return_request",
+    "expected_slots": { "order_id": "98765", "item_id": "shoes" },
+    "expected_response_contains": ["return_request_id", "pickup"]
+  },
+  {
+    "query": "How long do refunds take?",
+    "expected_intent": "refund_policy",
+    "expected_response_contains": ["7 business days"]
+  },
+  {
+    "query": "Do you accept PayPal?",
+    "expected_intent": "payment_methods",
+    "expected_response_contains": ["PayPal"]
+  }
+]
