@@ -6,6 +6,7 @@ WORKDIR /app
 # API Dockerfile
 COPY apps/api/requirements-api.txt .
 RUN pip install --no-cache-dir -r requirements-api.txt
+RUN pip install torch==2.5.1 -f https://download.pytorch.org/whl/torch_stable.html
 
 # Copy API code
 COPY apps/api /app

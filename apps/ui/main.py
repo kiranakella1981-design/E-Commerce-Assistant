@@ -50,8 +50,29 @@ if user_input:
     })
 
     # --- GUARDS ---
-    order_id = re.search(r"\b\d{4,}\b", user_input)
-    if any(k in user_input.lower() for k in ["order", "refund", "return"]) and not order_id:
+    # order_id = re.search(r"\b\d{4,}\b", user_input)
+    # if any(k in user_input.lower() for k in ["order", "refund", "return"]) and not order_id:
+    #     bot_reply = "❗ Please provide a valid order number (e.g. 12345)."
+    # else:
+    #     try:
+    #         r = requests.post(API_URL, json={"message": user_input}, timeout=10)
+    #         r.raise_for_status()
+    #         bot_reply = r.json()["message"]
+    #     except Exception as e:
+    #         bot_reply = f"⚠️ Backend error: {e}"
+
+    order_id = re.search(r"\b\d{4,}\b", user_input.lower())
+
+    transaction_triggers = [
+        "where is my order",
+        "order status",
+        "track my order",
+        "refund status",
+        "return status",
+        "return for order",
+    ]
+
+    if any(t in user_input.lower() for t in transaction_triggers) and not order_id:
         bot_reply = "❗ Please provide a valid order number (e.g. 12345)."
     else:
         try:
