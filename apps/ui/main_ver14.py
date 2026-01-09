@@ -3,15 +3,8 @@ import requests
 import re
 from datetime import datetime
 import pytz
-import logging
 
 API_BASE = "http://api:8000"
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s",
-)
-logger = logging.getLogger("ecom-chat")
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="E-Commerce Assistant", layout="centered")
@@ -31,7 +24,7 @@ with st.sidebar:
     st.subheader("⚙️ Admin")
     if st.button("Reload FAQ"):
         try:
-            r = requests.post(f"{API_BASE}/reload_faq", timeout=60)
+            r = requests.post(f"{API_BASE}/reload_faq", timeout=10)
             st.success(r.json().get("message", "No message returned"))
         except Exception as e:
             st.error(f"⚠️ Backend error: {e}")
@@ -88,19 +81,13 @@ if user_input:
         bot_reply = "❗ Please provide a valid order number (e.g. 12345)."
     else:
         try:
-            r = requests.post(f"{API_BASE}/chat", json={"message": user_input}, timeout=60)
+            r = requests.post(f"{API_BASE}/chat", json={"message": user_input}, timeout=10)
             r.raise_for_status()
-            logger.info("Raw response text: %s", r.text)
             resp_json = r.json()
-            # Debug log in UI
-            logger.info("Debug response:", resp_json) 
-            print("🔍 Debug response:", resp_json)
-            st.write("🔍 Debug response:", resp_json)
-
             # Defensive: ensure "message" exists
-            bot_reply = resp_json.get("message")
-            if not bot_reply:
-                bot_reply = f"⚠️ Unexpected backend response: {resp_json}"
+            bot_reply = resp_json.get("message", "⚠️ No message returned from backend.")
+            # Debug log in UI
+            st.write("🔍 Debug response:", resp_json)
         except Exception as e:
             bot_reply = f"⚠️ Backend error: {e}"
 
@@ -124,7 +111,7 @@ if show_testing:
     with col1:
         if st.button("Check Order"):
             try:
-                r = requests.get(f"{API_BASE}/order/{order_id_input}", timeout=60)
+                r = requests.get(f"{API_BASE}/order/{order_id_input}", timeout=10)
                 st.json(r.json())
             except Exception as e:
                 st.error(f"⚠️ Backend error: {e}")
@@ -132,7 +119,7 @@ if show_testing:
     with col2:
         if st.button("Refund Order"):
             try:
-                r = requests.post(f"{API_BASE}/refund/{order_id_input}", timeout=60)
+                r = requests.post(f"{API_BASE}/refund/{order_id_input}", timeout=10)
                 st.json(r.json())
             except Exception as e:
                 st.error(f"⚠️ Backend error: {e}")
@@ -140,7 +127,7 @@ if show_testing:
     with col3:
         if st.button("Return Order"):
             try:
-                r = requests.post(f"{API_BASE}/return/{order_id_input}", timeout=60)
+                r = requests.post(f"{API_BASE}/return/{order_id_input}", timeout=10)
                 st.json(r.json())
             except Exception as e:
                 st.error(f"⚠️ Backend error: {e}")
@@ -148,7 +135,7 @@ if show_testing:
     with col4:
         if st.button("Escalate Issue"):
             try:
-                r = requests.post(f"{API_BASE}/escalate/{order_id_input}", timeout=60)
+                r = requests.post(f"{API_BASE}/escalate/{order_id_input}", timeout=10)
                 st.json(r.json())
             except Exception as e:
                 st.error(f"⚠️ Backend error: {e}")

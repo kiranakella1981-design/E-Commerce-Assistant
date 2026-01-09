@@ -3,7 +3,6 @@
 # =========================
 import json
 import logging
-from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from models import (
@@ -14,7 +13,7 @@ from models import (
     EscalationResponse,
 )
 from intents import classify_intent, is_policy_query
-from rag import retrieve_docs, load_faq_docs, get_generator
+from rag import retrieve_docs, generator, load_faq_docs
 from utils import extract_order_id, find_record
 
 # =========================
@@ -43,17 +42,6 @@ with open(MOCK_PATH, "r") as f:
 # =========================
 # API Endpoints
 # =========================
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup code
-    get_generator()  # preload the model
-    yield
-    # Shutdown code (optional)
-    # e.g., cleanup resources
-
-app = FastAPI(lifespan=lifespan)
-
 @app.post("/reload_faq")
 def reload_faq():
     load_faq_docs()
@@ -76,100 +64,44 @@ def chat(req: ChatRequest):
         needs_order_id,
         order_id,
     )
-    relevant_sections = retrieve_docs(user_query, k=5, threshold=2.5)
-    logger.info("[RAG] Retrieved %d relevant sections", len(relevant_sections))
 
     # ---------- Guard ----------
     if needs_order_id and not order_id:
         logger.info("[GUARD] Missing order ID")
         return {"message": "❗ Please provide a valid order number (e.g., 12345)."}
 
-    if intent in ["faq", "shipping", "unknown"] or is_policy_query(user_query):
+    # ---------- FAQ ----------
+    if intent in ["faq", "unknown"] or is_policy_query(user_query):
         logger.info("[FAQ] Handling FAQ intent")
+        retrieved = retrieve_docs(user_query)
+        if not retrieved:
+            logger.info("[FAQ] No docs retrieved")
+            return {"message": "I don't have enough information to answer that."}
 
-        # with open("data/faq_docs.json") as f:
-        #     faq_docs = json.load(f)  # list of strings
+        context = "\n".join(retrieved)
+        prompt = f"""
+        You are a customer support assistant.
 
-        # relevant_answers = []
-        # q = user_query.lower()
+        When answering:
+        - Provide a complete and clear response.
+        - Include all relevant conditions, steps, timelines, and exceptions.
+        - If multiple sentences in the context relate to the question, combine them into one coherent answer.
+        - Do not truncate the answer.
 
-        # if "refund" in q:
-        #     relevant_answers = [entry for entry in faq_docs if "refund" in entry.lower()]
-        # elif "return" in q:
-        #     relevant_answers = [entry for entry in faq_docs if "return" in entry.lower()]
-        # elif "exchange" in q:
-        #     relevant_answers = [entry for entry in faq_docs if "exchange" in entry.lower()]
-        # elif "exception" in q:
-        #     relevant_answers = [entry for entry in faq_docs if "exception" in entry.lower()]
-        # elif "international" in q:
-        #     relevant_answers = [entry for entry in faq_docs if "international" in entry.lower()]
-        # elif "support" in q:
-        #     relevant_answers = [entry for entry in faq_docs if "support" in entry.lower()]
-        # elif "rule" in q:
-        #     relevant_answers = [entry for entry in faq_docs if "rule" in entry.lower()]
+        If the context does not contain the answer, reply exactly:
+        "I don't have that information."
 
-        # if not relevant_answers:
-        #     logger.info("[FAQ] No relevant FAQ entries found for query='%s'", user_query)
-        #     return {"message": "I don't have that information."}
-
-        # faq_context = "\n".join(relevant_answers[:3])
-        # logger.info("[FAQ] Context injected:\n%s", faq_context)
-
-        if not relevant_sections:
-            logger.info("[FAQ] No relevant FAQ entries found for query='%s'", user_query)
-            return {"message": "I don't have that information."}
-
-        faq_context = "\n\n".join(relevant_sections[:3])
-        logger.info("[FAQ] Context injected:\n%s", faq_context)        
-
-        formatted_prompt = f"""
-        You are a helpful e-commerce customer support assistant.
-
-        Instruction:
-        - Read all the FAQ / Policy sections provided.
-        - Answer the customer's question fully using all relevant information.
-        - Include details about return windows, refund process, shipping, costs, exceptions, and contact info.
-        - Format your answer in clear sections or bullet points.
-        - Do not skip any relevant section, summarize if needed.
-
-        Input:
-        FAQ / Policy Context:
-        {faq_context}
+        Context:
+        {context}
 
         Customer Question:
         {user_query}
 
-        Provide a complete answer to the customer using the context.
+        Answer:
         """
-
-        # Get the generator object
-        generator = get_generator()
-        if generator is None:
-            raise RuntimeError("Pipeline not initialized")
-
-
-        # Generate response
-        try:
-            result = generator(
-                formatted_prompt,
-                max_new_tokens=2000,
-                do_sample=False,  # deterministic
-                num_beams=3
-            )
-        except Exception as e:
-            logger.exception("Error during model generation")
-            return {"message": f"⚠️ Generation failed: {e}"}
-        
-        if not result or "generated_text" not in result[0]:
-            logger.error("Invalid generation output: %s", result)
-            return {"message": "⚠️ Failed to generate response. Please try again."}
-
+        result = generator(prompt, max_new_tokens=1000)
         logger.info("[FAQ] Returning generated answer")
-        logger.info("[FAQ] Full generated text:\n%s", result[0]["generated_text"])
-        # return {"message": result[0]["generated_text"].strip()}
-
-        #return {"message": result[0]["generated_text"].split("[/INST]")[-1].strip()}
-        return {"message": result[0]["generated_text"].replace("<s>[INST]", "").replace("[/INST]", "").strip()}
+        return {"message": result[0]["generated_text"].strip()}
 
     # ---------- Structured Tools ----------
     if intent == "order_status":

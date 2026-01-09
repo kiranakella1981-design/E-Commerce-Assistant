@@ -8,8 +8,9 @@ sentence-transformers==3.2.1
 faiss-cpu==1.8.0
 transformers==4.46.2
 #torch==2.5.1
-scikit-learn==1.5.2
-scipy==1.14.1
+# scikit-learn==1.5.2
+# scipy==1.14.1
 requests==2.32.3
 Markdown==3.7
 numpy<2
+accelerate>=0.26.0

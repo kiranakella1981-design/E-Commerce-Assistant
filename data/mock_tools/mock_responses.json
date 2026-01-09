@@ -1,23 +1,66 @@
 {
-  "order_status": {
-    "order_id": "12345",
-    "status": "Shipped",
-    "expected_delivery": "2026-01-10",
-    "carrier": "BlueDart",
-    "tracking_url": "http://mocktracking.com/12345"
-  },
-  "return_request": {
-    "order_id": "98765",
-    "item_id": "shoes",
-    "reason": "size issue",
-    "return_request_id": "RR-20260105-001",
-    "method": "pickup",
-    "label_url": "http://mockreturns.com/label/RR-20260105-001"
-  },
-  "refund_status": {
-    "order_id": "98765",
-    "stage": "Processing",
-    "amount": "2500 INR",
-    "timeline": "Expected within 5 business days"
-  }
+  "order_status": [
+    {
+      "order_id": "12345",
+      "status": "shipped",
+      "estimated_delivery": "2026-01-10",
+      "items": [
+        {"sku": "ABC123", "name": "Shoes", "qty": 1},
+        {"sku": "XYZ789", "name": "T-Shirt", "qty": 2}
+      ]
+    },
+    {
+      "order_id": "67890",
+      "status": "processing",
+      "estimated_delivery": "2026-01-15",
+      "items": [
+        {"sku": "LMN456", "name": "Headphones", "qty": 1}
+      ]
+    }
+  ],
+
+  "refund_status": [
+    {
+      "order_id": "12345",
+      "status": "processing",
+      "amount": 1200.0,
+      "timeline": "5-7 business days"
+    },
+    {
+      "order_id": "67890",
+      "status": "completed",
+      "amount": 2500.0,
+      "timeline": "Refund credited on 2026-01-05"
+    }
+  ],
+
+  "return_request": [
+    {
+      "order_id": "12345",
+      "item_id": "XYZ789",
+      "reason": "size_issue",
+      "method": "dropoff",
+      "label_url": "http://returns.example.com/label/12345"
+    },
+    {
+      "order_id": "67890",
+      "item_id": "LMN456",
+      "reason": "defective",
+      "method": "pickup",
+      "label_url": "http://returns.example.com/label/67890"
+    }
+  ],
+
+  "escalation": [
+    {
+      "ticket_id": "TKT-12345",
+      "status": "open",
+      "assigned_to": "support_agent_1"
+    },
+    {
+      "ticket_id": "TKT-67890",
+      "status": "in_progress",
+      "assigned_to": "support_agent_2"
+    }
+  ]
 }
